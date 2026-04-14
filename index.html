@@ -7,19 +7,14 @@
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      touch-action: manipulation;
-    }
+    html { height: 100%; }
 
     body {
-      min-height: 100dvh;
+      height: 100%;
       background: radial-gradient(ellipse at 60% 40%, #3d0b6e 0%, #1a0533 60%, #0d0020 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-family: 'Georgia', serif;
+      overflow: hidden;
+      touch-action: manipulation;
     }
 
     /* ── ЗВЁЗДЫ ── */
@@ -44,207 +39,179 @@
 
     /* ── СЕРДЕЧКИ ── */
     .heart-trail {
-      position: fixed; font-size: clamp(.9rem,3vw,1.4rem);
-      pointer-events: none; z-index: 20;
+      position: fixed; font-size: 1.3rem;
+      pointer-events: none; z-index: 25;
       animation: floatUp 1.2s ease-out forwards;
     }
     @keyframes floatUp {
       0%  { opacity:1; transform:translateY(0) scale(1); }
-      100%{ opacity:0; transform:translateY(-100px) scale(.3); }
+      100%{ opacity:0; transform:translateY(-90px) scale(.3); }
     }
 
     /* ── КНОПКА МУЗЫКИ ── */
     #music-btn {
       position: fixed;
-      bottom: max(18px, env(safe-area-inset-bottom, 18px));
-      right: 18px;
-      width: clamp(44px,12vw,56px);
-      height: clamp(44px,12vw,56px);
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      right: 16px;
+      width: 50px; height: 50px;
       border-radius: 50%;
       background: linear-gradient(135deg,#e879b8,#9b1b6e);
-      border: none; color: #fff;
-      font-size: clamp(1.2rem,4vw,1.5rem);
+      border: none; color: #fff; font-size: 1.4rem;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(155,27,110,.65);
+      box-shadow: 0 4px 16px rgba(155,27,110,.7);
       display: flex; align-items: center; justify-content: center;
-      transition: transform .2s; z-index: 200;
+      transition: transform .15s; z-index: 200;
       -webkit-tap-highlight-color: transparent;
     }
-    #music-btn:active { transform: scale(.92); }
+    #music-btn:active { transform: scale(.88); }
 
-    /* ══════════════════════════════════
-       СЦЕНА
-    ══════════════════════════════════ */
-    .scene {
-      perspective: 1200px;
-      position: relative;
-      z-index: 5;
-      /* карточка занимает 90% экрана, но не больше фиксированного размера */
-      width:  min(90vw, 340px);
-      height: min(88dvh, 500px);
-    }
-
-    .card-wrap {
-      position: relative;
-      width: 100%; height: 100%;
-    }
-
-    /* ── ПРАВЫЙ РАЗВОРОТ (подложка) ── */
-    .card-back {
-      position: absolute; inset: 0;
-      border-radius: 4px 20px 20px 4px;
-      background: linear-gradient(160deg,#fff0fb,#ffd6ee);
-      box-shadow: 6px 6px 36px rgba(0,0,0,.5);
-    }
-
-    .inner-right {
-      position: absolute; inset: 0;
-      border-radius: 4px 20px 20px 4px;
-      background: linear-gradient(160deg,#fff5fd,#ffe8f7);
+    /* ══════════════════════════════════════════
+       ОБЛОЖКА — занимает весь экран
+    ══════════════════════════════════════════ */
+    #cover-screen {
+      position: fixed; inset: 0; z-index: 100;
+      background: linear-gradient(145deg,#6b1a99,#3d0b6e,#9b1b6e);
       display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      padding: clamp(16px,4vw,32px) clamp(14px,4vw,28px) clamp(12px,3vw,20px);
-      overflow: hidden; gap: 0;
+      align-items: center; justify-content: center;
+      gap: 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 1.3s cubic-bezier(.77,0,.18,1), opacity .4s ease 1s;
+      transform-origin: left center;
+      overflow: hidden;
+    }
+    /* блеск */
+    #cover-screen::before {
+      content:''; position:absolute; inset:0;
+      background: linear-gradient(120deg,rgba(255,255,255,.07) 0%,transparent 55%);
+      pointer-events:none;
+    }
+    /* имитация корешка слева */
+    #cover-screen::after {
+      content:''; position:absolute;
+      left:0; top:0; bottom:0; width:14px;
+      background: linear-gradient(to right,rgba(0,0,0,.35),transparent);
+      pointer-events:none;
+    }
+    #cover-screen.opening {
+      transform: rotateY(-180deg) perspective(900px);
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .inner-right .roses {
-      font-size: clamp(1.4rem,5vw,2.2rem);
-      letter-spacing: 4px; margin-bottom: 4px;
+    .cover-deco {
+      position: absolute; opacity: .3;
+      font-size: clamp(1.2rem,5vw,2rem);
+      pointer-events:none; user-select:none;
+    }
+    .cover-emoji {
+      font-size: clamp(3rem,14vw,5.5rem);
+      animation: bounce 1.8s ease-in-out infinite;
+    }
+    @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    #cover-screen h1 {
+      font-size: clamp(1.4rem,6vw,2.2rem);
+      color: #fff; text-align: center; line-height: 1.5;
+      padding: 0 24px;
+      animation: glowText 2.2s ease-in-out infinite;
+      text-shadow: 0 0 20px #ff9de2,0 0 50px #ff6bcb;
+    }
+    @keyframes glowText{
+      0%,100%{ text-shadow:0 0 15px #ff9de2,0 0 40px #ff6bcb; }
+      50%    { text-shadow:0 0 35px #ff9de2,0 0 90px #ff6bcb,0 0 130px #c86dd7; }
+    }
+    .hint {
+      font-size: clamp(.85rem,3.5vw,1.1rem);
+      color: #ffd6f0;
+      animation: blink 1.6s ease-in-out infinite;
+    }
+    @keyframes blink{ 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ══════════════════════════════════════════
+       КОНТЕНТ — прокручиваемая страница
+    ══════════════════════════════════════════ */
+    #page {
+      position: fixed; inset: 0; z-index: 5;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 24px 16px calc(80px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .card {
+      width: 100%; max-width: 480px;
+      background: linear-gradient(160deg,#fff5fd,#ffe8f7);
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(120,20,100,.45), 0 0 0 3px #f7a8e0;
+      padding: clamp(22px,5vw,38px) clamp(18px,5vw,34px);
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px;
+    }
+
+    .roses {
+      font-size: clamp(1.6rem,7vw,2.6rem);
+      letter-spacing: 5px;
       animation: sway 3s ease-in-out infinite;
     }
     @keyframes sway{ 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
 
-    .inner-right h2 {
-      font-size: clamp(1.05rem,4vw,1.45rem);
+    .card h2 {
+      font-size: clamp(1.2rem,5.5vw,1.7rem);
       color: #9b1b6e; text-shadow: 1px 1px 0 #ffa8da;
-      margin-bottom: 6px; text-align: center;
+      text-align: center;
     }
-    .divider-inner {
-      width: 70%; height: 2px;
+    .divider {
+      width: 65%; height: 2px;
       background: linear-gradient(90deg,transparent,#e879b8,transparent);
-      margin-bottom: 10px;
-    }
-    .inner-right .msg {
-      font-size: clamp(.75rem,2.8vw,.9rem);
-      color: #5c1a47; line-height: 1.7; text-align: center;
-    }
-    .wishes-inner {
-      margin-top: 10px; list-style: none; width: 100%;
-    }
-    .wishes-inner li {
-      font-size: clamp(.7rem,2.6vw,.82rem);
-      color: #6b1a4e; padding: 3px 0;
-      display: flex; gap: 6px; align-items: flex-start;
-    }
-    .wishes-inner li::before { content:"✦"; color:#e879b8; flex-shrink:0; }
-    .sig {
-      margin-top: 12px;
-      font-size: clamp(.82rem,3vw,1rem);
-      color: #9b1b6e; font-style: italic; text-align: center;
     }
 
-    /* ── ОБЛОЖКА ── */
-    .cover-flap {
-      position: absolute; inset: 0;
-      transform-origin: left center;
-      transform-style: preserve-3d;
-      transition: transform 1.4s cubic-bezier(.645,.045,.355,1);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .cover-flap.open {
-      transform: rotateY(-175deg);
-    }
-
-    /* лицевая сторона */
-    .cover-front {
-      position: absolute; inset: 0;
-      backface-visibility: hidden;
-      border-radius: 4px 20px 20px 4px;
-      background: linear-gradient(145deg,#6b1a99,#3d0b6e,#9b1b6e);
-      box-shadow: 4px 0 28px rgba(0,0,0,.6);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: clamp(10px,3vw,18px);
-      padding: clamp(20px,5vw,36px);
-      overflow: hidden;
-    }
-    .cover-front::before {
-      content:''; position:absolute; inset:0;
-      background: linear-gradient(120deg,rgba(255,255,255,.08) 0%,transparent 60%);
-      border-radius: inherit; pointer-events:none;
-    }
-    .cover-front .cover-emoji {
-      font-size: clamp(2.4rem,9vw,4.2rem);
-      animation: bounce 1.8s ease-in-out infinite;
-    }
-    @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-
-    .cover-front h1 {
-      font-size: clamp(1.15rem,4.5vw,1.65rem);
-      color: #fff; text-align: center; line-height: 1.5;
-      text-shadow: 0 0 20px #ff9de2,0 0 50px #ff6bcb;
-      animation: glowText 2s ease-in-out infinite;
-    }
-    @keyframes glowText{
-      0%,100%{ text-shadow:0 0 15px #ff9de2,0 0 40px #ff6bcb; }
-      50%    { text-shadow:0 0 30px #ff9de2,0 0 80px #ff6bcb,0 0 120px #c86dd7; }
-    }
-    .cover-front .hint {
-      font-size: clamp(.72rem,2.8vw,.9rem);
-      color: #ffd6f0; animation: blink 1.6s ease-in-out infinite;
-    }
-    @keyframes blink{ 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    .cover-deco {
-      position: absolute;
-      font-size: clamp(.9rem,3.5vw,1.5rem);
-      opacity: .35; pointer-events:none; user-select:none;
-    }
-
-    /* обратная сторона обложки (левый разворот) */
-    .cover-back-face {
-      position: absolute; inset: 0;
-      backface-visibility: hidden;
-      transform: rotateY(180deg);
-      border-radius: 20px 4px 4px 20px;
-      background: linear-gradient(160deg,#fff5fd,#ffe0f5);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: clamp(14px,4vw,24px);
-      gap: clamp(6px,2vw,12px);
-    }
-    .cover-back-face .left-title {
-      font-size: clamp(.88rem,3.2vw,1.1rem);
-      color: #9b1b6e; font-style: italic; text-align: center;
-    }
-    .cover-back-face .photo-frame {
-      width:  clamp(90px,24vw,140px);
-      height: clamp(90px,24vw,140px);
+    /* фото-рамка */
+    .photo-frame {
+      width: clamp(90px,28vw,130px);
+      height: clamp(90px,28vw,130px);
       border-radius: 50%;
       border: 4px solid #e879b8;
       background: linear-gradient(135deg,#ffd6ee,#f7a8e0);
       display: flex; align-items: center; justify-content: center;
-      font-size: clamp(2.8rem,9vw,4.5rem);
-      box-shadow: 0 0 0 5px #fff0fb, 0 0 20px rgba(232,121,184,.4);
+      font-size: clamp(2.8rem,11vw,4.2rem);
+      box-shadow: 0 0 0 5px #fff0fb, 0 0 22px rgba(232,121,184,.45);
     }
-    .cover-back-face .left-msg {
-      font-size: clamp(.72rem,2.6vw,.85rem);
-      color: #6b1a4e; text-align: center; line-height: 1.7;
-    }
-    .cover-back-face .hearts {
-      font-size: clamp(1rem,4vw,1.6rem);
-      letter-spacing: 5px;
-      animation: sway 2.5s ease-in-out infinite;
+    .love-label {
+      font-size: clamp(.8rem,3.2vw,.95rem);
+      color: #9b1b6e; font-style: italic; text-align: center;
     }
 
-    /* КОРЕШОК */
-    .spine {
-      position: absolute; left:0; top:0; bottom:0; width:10px;
-      background: linear-gradient(to bottom,#9b1b6e,#6b1a99,#9b1b6e);
-      border-radius: 4px 0 0 4px;
-      box-shadow: inset -3px 0 5px rgba(0,0,0,.3);
-      z-index: 2;
+    .msg {
+      font-size: clamp(.85rem,3.5vw,1rem);
+      color: #5c1a47; line-height: 1.8; text-align: center;
+      width: 100%;
+    }
+
+    .wishes {
+      list-style: none; width: 100%;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .wishes li {
+      font-size: clamp(.8rem,3.2vw,.95rem);
+      color: #6b1a4e;
+      display: flex; gap: 8px; align-items: flex-start;
+      line-height: 1.5;
+    }
+    .wishes li::before { content:"✦"; color:#e879b8; flex-shrink:0; margin-top:1px; }
+
+    .sig {
+      font-size: clamp(.95rem,3.8vw,1.15rem);
+      color: #9b1b6e; font-style: italic; text-align: center;
+      padding-top: 6px;
+    }
+
+    .hearts-row {
+      font-size: clamp(1.2rem,5vw,1.8rem);
+      letter-spacing: 6px;
+      animation: sway 2.5s ease-in-out infinite;
     }
   </style>
 </head>
@@ -254,62 +221,55 @@
 <canvas id="canvas"></canvas>
 <button id="music-btn" title="Музыка">🎵</button>
 
-<div class="scene">
-  <div class="card-wrap">
+<!-- ОБЛОЖКА -->
+<div id="cover-screen" onclick="openCard()">
+  <span class="cover-deco" style="top:6%;left:5%">🌸</span>
+  <span class="cover-deco" style="top:6%;right:6%">🌸</span>
+  <span class="cover-deco" style="bottom:8%;left:6%">🌷</span>
+  <span class="cover-deco" style="bottom:8%;right:5%">🌷</span>
+  <span class="cover-deco" style="top:50%;left:3%;transform:translateY(-50%)">✨</span>
+  <span class="cover-deco" style="top:50%;right:3%;transform:translateY(-50%)">✨</span>
+  <div class="cover-emoji">🎂</div>
+  <h1>С Днём<br>Рождения,<br>Мамочка!</h1>
+  <p class="hint">✨ Нажми, чтобы открыть ✨</p>
+</div>
 
-    <!-- Правый разворот -->
-    <div class="card-back">
-      <div class="inner-right">
-        <div class="roses">🌹🌷🌸🌷🌹</div>
-        <h2>Дорогая Мамочка!</h2>
-        <div class="divider-inner"></div>
-        <p class="msg">
-          В этот особенный день я хочу сказать тебе,<br>
-          как сильно я тебя люблю и как благодарен<br>
-          за всё, что ты делаешь. Ты — моя опора,<br>
-          моя поддержка и самый родной человек.<br><br>
-          Пусть этот день будет наполнен<br>
-          радостью, теплом и счастьем!
-        </p>
-        <ul class="wishes-inner">
-          <li>Крепкого здоровья на долгие годы</li>
-          <li>Бесконечного счастья и покоя</li>
-          <li>Исполнения всех заветных желаний</li>
-          <li>Любви и заботы близких людей</li>
-          <li>Новых ярких путешествий и радостей</li>
-        </ul>
-        <p class="sig">С безграничной любовью,<br>твой Даня 💖</p>
-      </div>
-    </div>
+<!-- СТРАНИЦА С ТЕКСТОМ -->
+<div id="page">
+  <div class="card">
+    <div class="roses">🌹🌷🌸🌷🌹</div>
+    <h2>Дорогая Мамочка!</h2>
+    <div class="divider"></div>
 
-    <!-- Обложка -->
-    <div class="cover-flap" id="coverFlap" onclick="openCard()">
-      <span class="cover-deco" style="top:7%;left:5%">🌸</span>
-      <span class="cover-deco" style="top:7%;right:7%">🌸</span>
-      <span class="cover-deco" style="bottom:9%;left:7%">🌷</span>
-      <span class="cover-deco" style="bottom:9%;right:5%">🌷</span>
-      <span class="cover-deco" style="top:49%;left:3%;transform:translateY(-50%)">✨</span>
+    <div class="photo-frame">👩</div>
+    <p class="love-label">Для самой любимой мамы на свете</p>
 
-      <div class="cover-front">
-        <div class="cover-emoji">🎂</div>
-        <h1>С Днём<br>Рождения,<br>Мамочка!</h1>
-        <p class="hint">✨ Открой меня ✨</p>
-      </div>
+    <div class="divider"></div>
 
-      <div class="cover-back-face">
-        <p class="left-title">Для самой<br>любимой мамы</p>
-        <div class="photo-frame">👩</div>
-        <p class="left-msg">
-          Ты — самое тёплое,<br>
-          что есть в моей жизни.<br>
-          Люблю тебя больше всего<br>
-          на свете! 🌺
-        </p>
-        <div class="hearts">💖💕💗</div>
-      </div>
-    </div>
+    <p class="msg">
+      В этот особенный день я хочу сказать тебе,
+      как сильно я тебя люблю и как благодарен
+      за всё, что ты делаешь. Ты — моя опора,
+      моя поддержка и самый родной человек на свете.<br><br>
+      Пусть этот день будет наполнен радостью,
+      теплом и только добрыми новостями.
+      Ты заслуживаешь всего самого лучшего!
+    </p>
 
-    <div class="spine"></div>
+    <div class="divider"></div>
+
+    <ul class="wishes">
+      <li>Крепкого здоровья на долгие-долгие годы</li>
+      <li>Бесконечного счастья и душевного покоя</li>
+      <li>Исполнения всех самых заветных желаний</li>
+      <li>Любви и заботы всех близких людей</li>
+      <li>Новых ярких путешествий и открытий</li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <div class="hearts-row">💖💕💗</div>
+    <p class="sig">С безграничной любовью,<br>твой Даня 💖</p>
   </div>
 </div>
 
@@ -318,8 +278,7 @@
 (function(){
   const c=document.getElementById('stars');
   for(let i=0;i<130;i++){
-    const s=document.createElement('div');
-    s.className='star';
+    const s=document.createElement('div');s.className='star';
     const z=Math.random()*3+1;
     s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*5}s;`;
     c.appendChild(s);
@@ -365,18 +324,17 @@ const CC=['#ff6bcb','#c084fc','#facc15','#4ade80','#60a5fa','#f87171','#fbbf24']
 class Balloon{
   constructor(d=0){this.reset(d);}
   reset(d=0){
-    this.x=Math.random()*cv.width;this.y=cv.height+80+Math.random()*200;
-    this.r=clampR(22,38);this.color=BC[Math.random()*BC.length|0];
-    this.vx=(Math.random()-.5)*1.2;this.vy=-(1.1+Math.random()*1.6);
+    this.x=Math.random()*cv.width;this.y=cv.height+80+Math.random()*160;
+    this.r=20+Math.random()*18;this.color=BC[Math.random()*BC.length|0];
+    this.vx=(Math.random()-.5)*1.1;this.vy=-(1+Math.random()*1.5);
     this.sway=Math.random()*Math.PI*2;this.delay=d;this.alpha=0;
   }
   update(){
     if(this.delay>0){this.delay--;return;}
     this.alpha=Math.min(1,this.alpha+.04);
     this.sway+=.02;
-    this.x+=this.vx+Math.sin(this.sway)*.5;
-    this.y+=this.vy;
-    if(this.y<-this.r*2)this.reset(Math.random()*90);
+    this.x+=this.vx+Math.sin(this.sway)*.45;this.y+=this.vy;
+    if(this.y<-this.r*2)this.reset(Math.random()*80);
   }
   draw(c){
     if(this.delay>0)return;
@@ -386,15 +344,13 @@ class Balloon{
     c.beginPath();c.ellipse(this.x,this.y,this.r,this.r*1.15,0,0,Math.PI*2);
     c.fillStyle=g;c.fill();
     c.beginPath();c.moveTo(this.x-3,this.y+this.r*1.15);c.lineTo(this.x+3,this.y+this.r*1.15);
-    c.lineTo(this.x,this.y+this.r*1.15+8);c.closePath();c.fillStyle=this.color;c.fill();
-    c.beginPath();c.moveTo(this.x,this.y+this.r*1.15+8);
-    c.quadraticCurveTo(this.x+12,this.y+this.r*1.15+36,this.x-4,this.y+this.r*1.15+68);
-    c.strokeStyle=this.color+'bb';c.lineWidth=1.2;c.stroke();
+    c.lineTo(this.x,this.y+this.r*1.15+7);c.closePath();c.fillStyle=this.color;c.fill();
+    c.beginPath();c.moveTo(this.x,this.y+this.r*1.15+7);
+    c.quadraticCurveTo(this.x+10,this.y+this.r*1.15+34,this.x-4,this.y+this.r*1.15+64);
+    c.strokeStyle=this.color+'bb';c.lineWidth=1.1;c.stroke();
     c.restore();
   }
 }
-function clampR(a,b){return a+Math.random()*(b-a);}
-
 class Confetti{
   constructor(){this.reset(true);}
   reset(init=false){
@@ -402,8 +358,8 @@ class Confetti{
     this.y=init?Math.random()*cv.height*.5-cv.height:-20;
     this.w=6+Math.random()*7;this.h=4+Math.random()*4;
     this.color=CC[Math.random()*CC.length|0];
-    this.vx=(Math.random()-.5)*2.5;this.vy=1.5+Math.random()*2.5;
-    this.rot=Math.random()*Math.PI*2;this.vrot=(Math.random()-.5)*.12;
+    this.vx=(Math.random()-.5)*2.2;this.vy=1.4+Math.random()*2.2;
+    this.rot=Math.random()*Math.PI*2;this.vrot=(Math.random()-.5)*.11;
     this.alpha=.85+Math.random()*.15;
   }
   update(){this.x+=this.vx;this.y+=this.vy;this.rot+=this.vrot;if(this.y>cv.height+20)this.reset();}
@@ -416,8 +372,8 @@ class Confetti{
 }
 
 const balloons=[],confetti=[];
-for(let i=0;i<18;i++)balloons.push(new Balloon(i*8));
-for(let i=0;i<90;i++)confetti.push(new Confetti());
+for(let i=0;i<16;i++)balloons.push(new Balloon(i*9));
+for(let i=0;i<80;i++)confetti.push(new Confetti());
 
 let animating=false;
 function animate(){
@@ -428,12 +384,12 @@ function animate(){
   requestAnimationFrame(animate);
 }
 
-/* ── ТАЧ + МЫШЬ — сердечки ── */
+/* ── СЕРДЕЧКИ ── */
 function spawnHeart(x,y){
-  const emojis=['💖','💗','💝','✨','🌸','💕','🌺'];
+  const em=['💖','💗','💝','✨','🌸','💕','🌺'];
   const el=document.createElement('div');
   el.className='heart-trail';
-  el.textContent=emojis[Math.random()*emojis.length|0];
+  el.textContent=em[Math.random()*em.length|0];
   el.style.left=x+'px';el.style.top=y+'px';
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),1300);
@@ -444,10 +400,7 @@ document.addEventListener('mousemove',e=>{
 });
 document.addEventListener('touchmove',e=>{
   if(!animating)return;
-  for(const t of e.touches){
-    if(Math.random()>.35)continue;
-    spawnHeart(t.clientX,t.clientY);
-  }
+  for(const t of e.touches){if(Math.random()>.4)continue;spawnHeart(t.clientX,t.clientY);}
 },{passive:true});
 
 /* ── ОТКРЫТЬ ── */
@@ -455,8 +408,13 @@ let opened=false;
 function openCard(){
   if(opened)return;
   opened=true;
-  document.getElementById('coverFlap').classList.add('open');
-  setTimeout(()=>{animating=true;animate();startMusic();},700);
+  const cover=document.getElementById('cover-screen');
+  cover.classList.add('opening');
+  setTimeout(()=>{
+    cover.style.display='none';
+    document.body.style.overflow='auto';
+    animating=true;animate();startMusic();
+  },1400);
 }
 </script>
 </body>
